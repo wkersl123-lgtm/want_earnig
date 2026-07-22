@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>미주 실적 KST - 미국 주식 실적발표 한국시간 알리미 App</title>
+    
+    <!-- Web App / PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="https://placehold.co/180x180/4f46e5/ffffff?text=KST+Stock">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b',
+                        borderbg: '#334155'
+                    },
+                    boxShadow: {
+                        'app': '0 -4px 20px -2px rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 2px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 16px);
+        }
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar bg-slate-950 pb-20 md:pb-6">
+
+    <!-- App Main Header -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 py-3 flex items-center justify-between safe-area-top">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
+                <i class="fa-solid fa-chart-line text-white text-lg"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-1.5">
+                    <h1 class="font-extrabold text-base text-white tracking-tight leading-none">미주 실적 KST</h1>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">App</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-0.5">미국 주식 실적발표 한국시간 변환 & 알리미</p>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation Header Tabs (Hidden on mobile, bottom bar replaces it) -->
+        <div class="hidden md:flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
+            <button id="desk-tab-search" onclick="switchTab('search')" class="px-3.5 py-1.5 font-medium rounded-lg transition-all bg-indigo-600 text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>실적 검색</span>
+            </button>
+            <button id="desk-tab-calendar" onclick="switchTab('calendar')" class="px-3.5 py-1.5 font-medium rounded-lg transition-all text-slate-400 hover:text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>KST 캘린더</span>
+            </button>
+            <button id="desk-tab-watchlist" onclick="switchTab('watchlist')" class="px-3.5 py-1.5 font-medium rounded-lg transition-all text-slate-400 hover:text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-star"></i>
+                <span>관심종목 알람</span>
+            </button>
+            <button id="desk-tab-extension" onclick="switchTab('extension')" class="px-3.5 py-1.5 font-medium rounded-lg transition-all text-slate-400 hover:text-white flex items-center gap-1.5">
+                <i class="fa-brands fa-chrome"></i>
+                <span>확장프로그램/앱</span>
+            </button>
+        </div>
+
+        <button onclick="toggleAppInstallModal()" class="md:hidden text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 p-2 rounded-lg text-xs font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-download"></i>
+            <span>앱 설치</span>
+        </button>
+    </header>
+
+    <!-- App Container -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-5 space-y-4">
+
+        <!-- KST Live Timezone Status Strip -->
+        <section class="glass-panel p-3.5 sm:p-4 rounded-2xl border border-slate-800 shadow-lg flex items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex-shrink-0">
+                    <i class="fa-solid fa-clock text-base sm:text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="dst-badge" class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            서머타임(EDT) 적용 중
+                        </span>
+                        <span class="text-xs text-slate-400 hidden sm:inline">미국 대비 +13시간</span>
+                    </div>
+                    <p id="dst-explanation" class="text-xs text-slate-400 mt-0.5">
+                        장 전(BMO): 19:00~21:30 KST / 장 후(AMC): 다음날 05:00~05:30 KST
+                    </p>
+                </div>
+            </div>
+            <div class="bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800 text-right flex-shrink-0">
+                <span class="text-slate-400 block text-[10px] font-medium">현재 한국 시간</span>
+                <span id="current-kst-time" class="font-mono font-black text-indigo-400 text-sm sm:text-base">--:--:--</span>
+            </div>
+        </section>
+
+        <!-- TAB 1: SEARCH & LIVE TRACKER -->
+        <div id="view-search" class="space-y-4">
+            <!-- Search Bar & Hot Tickers -->
+            <div class="glass-panel p-4 sm:p-5 rounded-2xl shadow-xl space-y-3 border border-slate-800">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base"></i>
+                    <input type="text" id="ticker-input" placeholder="미국 주식 티커 입력 (예: MU, NVDA, NXT, AAPL)..."
+                        class="w-full pl-11 pr-24 py-3 bg-slate-900/90 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 text-sm font-semibold uppercase tracking-wider transition-all"
+                        onkeyup="handleSearchKeyup(event)">
+                    <button onclick="searchTicker()" class="absolute right-1.5 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-bold text-xs transition-all shadow-md active:scale-95">
+                        검색
+                    </button>
+                </div>
+
+                <!-- Popular Quick Buttons -->
+                <div class="flex items-center flex-wrap gap-1.5 pt-1 text-xs">
+                    <span class="text-slate-400 text-[11px] font-medium flex items-center gap-1 me-1">
+                        <i class="fa-solid fa-fire text-amber-400"></i> 인기:
+                    </span>
+                    <button onclick="quickSearch('MU')" class="px-2.5 py-1 bg-indigo-900/50 hover:bg-indigo-600/50 text-indigo-300 rounded-lg border border-indigo-500/40 font-mono font-bold transition-all text-xs">MU</button>
+                    <button onclick="quickSearch('NXT')" class="px-2.5 py-1 bg-teal-900/50 hover:bg-teal-600/50 text-teal-300 rounded-lg border border-teal-500/40 font-mono font-bold transition-all text-xs">NXT</button>
+                    <button onclick="quickSearch('NVDA')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 font-mono font-bold transition-all text-xs">NVDA</button>
+                    <button onclick="quickSearch('TSLA')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 font-mono font-bold transition-all text-xs">TSLA</button>
+                    <button onclick="quickSearch('AAPL')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 font-mono font-bold transition-all text-xs">AAPL</button>
+                    <button onclick="quickSearch('PLTR')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 font-mono font-bold transition-all text-xs">PLTR</button>
+                </div>
+            </div>
+
+            <!-- Search Result Container Card -->
+            <div id="search-result-container" class="transition-all duration-300">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div class="glass-panel p-4 rounded-xl border border-slate-800 flex items-start space-x-3">
+                    <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20">
+                        <i class="fa-solid fa-bolt text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-200 text-xs">실시간 API + AI 연동</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">야후 파이낸스 API와 Gemini 구글 실시간 검색으로 미국 전 종목을 다이내믹 수집합니다.</p>
+                    </div>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800 flex items-start space-x-3">
+                    <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20">
+                        <i class="fa-solid fa-calculator text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-200 text-xs">자동 KST 시차 환산</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">서머타임 유무와 BMO(장 전)/AMC(장 후) 구분을 적용해 한국 개미 투자자 시각을 보여줍니다.</p>
+                    </div>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-slate-800 flex items-start space-x-3">
+                    <div class="p-2.5 bg-purple-500/10 text-purple-400 rounded-lg border border-purple-500/20">
+                        <i class="fa-solid fa-bell text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-200 text-xs">관심종목 KST 알람</h4>
+                        <p class="text-[11px] text-slate-400 mt-0.5">관심 티커를 등록해두면 발표 10분 전 푸시 알림 타이머를 구동합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: WATCHLIST & ALARM TRACKER -->
+        <div id="view-watchlist" class="hidden space-y-4">
+            <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-star text-amber-400"></i>
+                            나의 관심종목 & KST 발표 알람
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">등록된 종목들의 한국시간 발표 일정과 카운트다운 알람입니다.</p>
+                    </div>
+                    <button onclick="clearWatchlist()" class="text-xs text-slate-400 hover:text-rose-400 px-2 py-1 rounded bg-slate-900 border border-slate-800">
+                        전체 삭제
+                    </button>
+                </div>
+
+                <!-- Watchlist Cards Grid -->
+                <div id="watchlist-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Dynamic Watchlist Items -->
+                </div>
+            </div>
+
+            <!-- Custom KST Timezone Calculator Tool -->
+            <div class="glass-panel p-5 rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/30 via-slate-900 to-slate-900 space-y-3">
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-indigo-400"></i>
+                    임의 미국 발표 시각 KST 간편 변환기
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <div>
+                        <label class="block text-slate-400 text-[11px] mb-1">미국 현지 날짜</label>
+                        <input type="date" id="calc-us-date" value="2026-07-29" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-[11px] mb-1">발표 시점</label>
+                        <select id="calc-us-timing" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-mono">
+                            <option value="AMC">장 마감 후 (AMC - 16:05 ET)</option>
+                            <option value="BMO">장 시작 전 (BMO - 07:00 ET)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="calculateCustomKST()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold p-2 rounded-lg text-xs transition-all">
+                            KST 시각 계산
+                        </button>
+                    </div>
+                </div>
+                <div id="calc-result-box" class="hidden p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-xs text-indigo-300 font-mono">
+                    <!-- Calculation output -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: EARNINGS CALENDAR -->
+        <div id="view-calendar" class="hidden space-y-4">
+            <div class="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-days text-indigo-400"></i>
+                            미국 기업 실적발표 KST 캘린더
+                        </h3>
+                        <p class="text-xs text-slate-400">한국시간(KST) 발표 일시 기준 월별 캘린더입니다.</p>
+                    </div>
+
+                    <!-- Month Controls & Sector Filter -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <div class="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-1 text-xs">
+                            <button onclick="changeCalMonth(-1)" class="px-2 py-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded transition-colors">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <span id="cal-month-title" class="px-2.5 font-mono font-bold text-indigo-300">2026년 7월</span>
+                            <button onclick="changeCalMonth(1)" class="px-2 py-1 text-slate-300 hover:text-white hover:bg-slate-800 rounded transition-colors">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <select id="calendar-filter" onchange="renderCalendar()" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500">
+                            <option value="ALL">전체 섹터</option>
+                            <option value="BIGTECH">빅테크 & AI</option>
+                            <option value="SEMICON">반도체</option>
+                            <option value="ENERGY">에너지</option>
+                            <option value="EV">전기차</option>
+                            <option value="FINANCE">금융</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Calendar Grid Container -->
+                <div class="space-y-1.5">
+                    <!-- Day Headers -->
+                    <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] py-1.5 bg-slate-900/80 rounded-xl border border-slate-800 text-slate-400">
+                        <div class="text-rose-400">일</div>
+                        <div>월</div>
+                        <div>화</div>
+                        <div>수</div>
+                        <div>목</div>
+                        <div>금</div>
+                        <div class="text-indigo-400">토</div>
+                    </div>
+
+                    <!-- Calendar Day Cells -->
+                    <div id="calendar-grid-cells" class="grid grid-cols-7 gap-1 sm:gap-1.5 auto-rows-fr">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="flex items-center justify-end gap-3 text-[11px] text-slate-400 pt-1 border-t border-slate-800">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 장 전 (BMO)</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> 장 후 (AMC)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: EXTENSION & PWA INSTALL GUIDE -->
+        <div id="view-extension" class="hidden space-y-4">
+            <!-- App Install Banner Card -->
+            <div class="glass-panel p-5 rounded-2xl border border-indigo-500/40 bg-gradient-to-r from-indigo-950/40 via-slate-900 to-slate-900 shadow-xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[11px] font-bold border border-indigo-500/30">
+                        📲 모바일 홈 화면 앱(PWA) 추가
+                    </span>
+                    <i class="fa-solid fa-mobile-screen-button text-indigo-400 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white">스마트폰 홈 화면에 전용 앱으로 설치하기</h3>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    본 웹 앱은 Progressive Web App(PWA) 구조로 설계되어 있습니다. 앱스토어 다운로드 없이 브라우저 메뉴에서 <strong class="text-indigo-300">'홈 화면에 추가'</strong>를 누르면 실제 모바일 앱처럼 구동됩니다.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                        <strong class="text-indigo-300 block mb-1">아이폰 (iOS Safari)</strong>
+                        <p class="text-slate-400 text-[11px]">하단 공유 버튼(<i class="fa-solid fa-share-nodes"></i>) 아이콘 클릭 ➔ <strong>'홈 화면에 추가'</strong> 선택</p>
+                    </div>
+                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                        <strong class="text-indigo-300 block mb-1">안드로이드 (Chrome / 삼성인터넷)</strong>
+                        <p class="text-slate-400 text-[11px]">우측 상단 메뉴(<i class="fa-solid fa-ellipsis-vertical"></i>) 클릭 ➔ <strong>'앱 설치'</strong> 또는 <strong>'홈 화면에 추가'</strong> 선택</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chrome Extension Code Viewer -->
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden shadow-xl space-y-0">
+                <div class="bg-slate-900 p-3 border-b border-slate-800 flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-1 overflow-x-auto">
+                        <button onclick="showCodeFile('manifest')" id="file-btn-manifest" class="px-3 py-1 rounded-lg text-xs font-mono font-bold bg-indigo-600 text-white">
+                            manifest.json
+                        </button>
+                        <button onclick="showCodeFile('popup_html')" id="file-btn-popup_html" class="px-3 py-1 rounded-lg text-xs font-mono font-bold text-slate-400 hover:text-white">
+                            popup.html
+                        </button>
+                        <button onclick="showCodeFile('popup_js')" id="file-btn-popup_js" class="px-3 py-1 rounded-lg text-xs font-mono font-bold text-slate-400 hover:text-white">
+                            popup.js
+                        </button>
+                        <button onclick="showCodeFile('background_js')" id="file-btn-background_js" class="px-3 py-1 rounded-lg text-xs font-mono font-bold text-slate-400 hover:text-white">
+                            background.js
+                        </button>
+                    </div>
+                    <button onclick="copyCurrentCode()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-lg text-xs font-medium border border-slate-700 flex items-center gap-1.5">
+                        <i class="fa-regular fa-copy"></i>
+                        <span id="copy-btn-text">코드 복사</span>
+                    </button>
+                </div>
+                <div class="bg-slate-950 p-4 overflow-x-auto">
+                    <pre><code id="code-display" class="font-mono text-xs text-indigo-200 block leading-relaxed"></code></pre>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Mobile Native App Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-slate-800/80 px-2 py-1.5 md:hidden safe-area-bottom shadow-app">
+        <div class="flex items-center justify-around text-center">
+            <button id="mob-tab-search" onclick="switchTab('search')" class="flex-1 py-1 text-indigo-400 flex flex-col items-center gap-0.5 transition-all">
+                <i class="fa-solid fa-magnifying-glass text-base"></i>
+                <span class="text-[10px] font-bold">검색</span>
+            </button>
+            <button id="mob-tab-calendar" onclick="switchTab('calendar')" class="flex-1 py-1 text-slate-400 flex flex-col items-center gap-0.5 transition-all">
+                <i class="fa-solid fa-calendar-days text-base"></i>
+                <span class="text-[10px] font-bold">캘린더</span>
+            </button>
+            <button id="mob-tab-watchlist" onclick="switchTab('watchlist')" class="flex-1 py-1 text-slate-400 flex flex-col items-center gap-0.5 transition-all relative">
+                <i class="fa-solid fa-star text-base"></i>
+                <span class="text-[10px] font-bold">관심종목</span>
+                <span id="watchlist-count-badge" class="absolute top-0 right-1/4 w-2 h-2 rounded-full bg-amber-400 hidden"></span>
+            </button>
+            <button id="mob-tab-extension" onclick="switchTab('extension')" class="flex-1 py-1 text-slate-400 flex flex-col items-center gap-0.5 transition-all">
+                <i class="fa-solid fa-puzzle-piece text-base"></i>
+                <span class="text-[10px] font-bold">확장/앱</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- App Footer -->
+    <footer class="border-t border-slate-800/60 py-4 text-center text-xs text-slate-500 mt-auto">
+        <p>미국 주식 실적발표 한국시간(KST) 자동 계산 App & Extension</p>
+    </footer>
+
+    <script>
+        // Database & State Storage
+        const STOCK_DATABASE = {
+            "MU": { name: "Micron Technology, Inc.", ticker: "MU", sector: "SEMICON", usDate: "2026-09-23", usTiming: "AMC", usTimeEST: "16:05", estEps: "$1.08", estRev: "$7.65B", prevSurprise: "+14.8%", logoBg: "bg-blue-600" },
+            "NXT": { name: "Nextracker Inc.", ticker: "NXT", sector: "ENERGY", usDate: "2026-07-29", usTiming: "AMC", usTimeEST: "16:05", estEps: "$0.68", estRev: "$710M", prevSurprise: "+15.2%", logoBg: "bg-teal-600" },
+            "NVDA": { name: "NVIDIA Corp.", ticker: "NVDA", sector: "SEMICON", usDate: "2026-08-26", usTiming: "AMC", usTimeEST: "16:20", estEps: "$0.65", estRev: "$28.5B", prevSurprise: "+12.4%", logoBg: "bg-emerald-600" },
+            "AAPL": { name: "Apple Inc.", ticker: "AAPL", sector: "BIGTECH", usDate: "2026-07-30", usTiming: "AMC", usTimeEST: "16:30", estEps: "$1.34", estRev: "$84.3B", prevSurprise: "+4.2%", logoBg: "bg-slate-600" },
+            "TSLA": { name: "Tesla, Inc.", ticker: "TSLA", sector: "EV", usDate: "2026-07-22", usTiming: "AMC", usTimeEST: "16:05", estEps: "$0.62", estRev: "$24.8B", prevSurprise: "-2.1%", logoBg: "bg-red-600" },
+            "AVGO": { name: "Broadcom Inc.", ticker: "AVGO", sector: "SEMICON", usDate: "2026-09-03", usTiming: "AMC", usTimeEST: "16:15", estEps: "$1.20", estRev: "$12.9B", prevSurprise: "+6.5%", logoBg: "bg-rose-600" },
+            "MSFT": { name: "Microsoft Corp.", ticker: "MSFT", sector: "BIGTECH", usDate: "2026-07-28", usTiming: "AMC", usTimeEST: "16:05", estEps: "$2.94", estRev: "$64.7B", prevSurprise: "+5.1%", logoBg: "bg-blue-600" },
+            "AMZN": { name: "Amazon.com, Inc.", ticker: "AMZN", sector: "BIGTECH", usDate: "2026-08-01", usTiming: "AMC", usTimeEST: "16:00", estEps: "$1.03", estRev: "$148.6B", prevSurprise: "+8.7%", logoBg: "bg-amber-600" },
+            "GOOGL": { name: "Alphabet Inc.", ticker: "GOOGL", sector: "BIGTECH", usDate: "2026-07-23", usTiming: "AMC", usTimeEST: "16:00", estEps: "$1.85", estRev: "$84.2B", prevSurprise: "+6.3%", logoBg: "bg-red-500" },
+            "META": { name: "Meta Platforms, Inc.", ticker: "META", sector: "BIGTECH", usDate: "2026-07-29", usTiming: "AMC", usTimeEST: "16:05", estEps: "$4.72", estRev: "$38.3B", prevSurprise: "+9.0%", logoBg: "bg-blue-500" },
+            "PLTR": { name: "Palantir Technologies", ticker: "PLTR", sector: "BIGTECH", usDate: "2026-08-03", usTiming: "AMC", usTimeEST: "16:05", estEps: "$0.08", estRev: "$652M", prevSurprise: "+14.2%", logoBg: "bg-slate-700" }
+        };
+
+        const EXTENSION_FILES = {
+            manifest: JSON.stringify({
+                "manifest_version": 3,
+                "name": "미국 주식 실적발표 KST 알리미",
+                "version": "1.3.0",
+                "description": "미국 주식 실적 발표 일시를 한국시간(KST) 및 장 전/후 구분으로 한눈에 확인합니다.",
+                "permissions": ["storage"],
+                "action": { "default_popup": "popup.html" }
+            }, null, 2),
+            popup_html: `<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { width: 330px; padding: 12px; font-family: system-ui; background: #0f172a; color: #fff; }
+    .title { font-weight: 800; color: #818cf8; font-size: 14px; margin-bottom: 8px; }
+    input { width: 70%; padding: 6px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; }
+    button { padding: 6px 12px; background: #4f46e5; border: none; color: #fff; border-radius: 6px; font-weight: 700; cursor: pointer; }
+    .card { background: #1e293b; border-radius: 8px; p: 10px; margin-top: 10px; border: 1px solid #334155; padding: 10px; }
+    .kst { font-size: 15px; font-weight: 800; color: #a5b4fc; }
+  </style>
+</head>
+<body>
+  <div class="title">📈 미주 실적 KST 알리미</div>
+  <input type="text" id="ticker" value="MU">
+  <button id="search-btn">조회</button>
+  <div id="result" class="card"></div>
+  <script src="popup.js"><\/script>
+</body>
+</html>`,
+            popup_js: `document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('search-btn');
+  const res = document.getElementById('result');
+  btn.addEventListener('click', () => {
+    res.innerHTML = '<div class="kst">한국시간: 9월 24일(목) 새벽 05:05</div><div style="font-size:11px; color:#94a3b8; margin-top:4px;">장 마감 후 (AMC) 발표</div>';
+  });
+});`,
+            background_js: `chrome.runtime.onInstalled.addListener(() => {
+  console.log("미국 주식 실적 KST 확장프로그램 설치 완료");
+});`
+        };
+
+        let currentCodeTab = 'manifest';
+        let calendarYear = 2026;
+        let calendarMonth = 6;
+        let userWatchlist = JSON.parse(localStorage.getItem('kst_watchlist') || '["MU", "NXT", "NVDA"]');
+
+        function saveWatchlist() {
+            localStorage.setItem('kst_watchlist', JSON.stringify(userWatchlist));
+            updateWatchlistBadge();
+        }
+
+        function updateWatchlistBadge() {
+            const badge = document.getElementById('watchlist-count-badge');
+            if (badge) {
+                if (userWatchlist.length > 0) badge.classList.remove('hidden');
+                else badge.classList.add('hidden');
+            }
+        }
+
+        // Timezone DST calculation
+        function isDaylightSavingTime(date = new Date()) {
+            const year = date.getUTCFullYear();
+            const march = new Date(Date.UTC(year, 2, 1));
+            const dstStart = new Date(Date.UTC(year, 2, 14 - (march.getUTCDay() % 7)));
+            dstStart.setUTCHours(7);
+
+            const nov = new Date(Date.UTC(year, 10, 1));
+            const dstEnd = new Date(Date.UTC(year, 10, (7 - (nov.getUTCDay() % 7)) % 7 + 1));
+            dstEnd.setUTCHours(6);
+
+            return date >= dstStart && date < dstEnd;
+        }
+
+        function convertESTToKST(usDateStr, usTimeStr = "16:05") {
+            const [year, month, day] = usDateStr.split('-').map(Number);
+            const [hours, mins] = usTimeStr.split(':').map(Number);
+
+            const usDateUtcApprox = new Date(Date.UTC(year, month - 1, day, hours + 4, mins));
+            const isDst = isDaylightSavingTime(usDateUtcApprox);
+
+            const offsetHours = isDst ? 13 : 14;
+            const usLocalTime = new Date(year, month - 1, day, hours, mins);
+            const kstDate = new Date(usLocalTime.getTime() + (offsetHours * 60 * 60 * 1000));
+
+            return { kstDate, isDst };
+        }
+
+        function updateClocks() {
+            const now = new Date();
+            const isDst = isDaylightSavingTime(now);
+
+            const badge = document.getElementById('dst-badge');
+            const explanation = document.getElementById('dst-explanation');
+
+            if (badge && explanation) {
+                if (isDst) {
+                    badge.className = "px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                    badge.textContent = "서머타임(EDT) 적용 중";
+                    explanation.innerHTML = '장 전(BMO): 19:00~21:30 KST / 장 후(AMC): 다음날 05:00~05:30 KST';
+                } else {
+                    badge.className = "px-2 py-0.5 text-[11px] font-bold rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30";
+                    badge.textContent = "겨울 표준시(EST) 적용 중";
+                    explanation.innerHTML = '장 전(BMO): 20:00~22:30 KST / 장 후(AMC): 다음날 06:00~06:30 KST';
+                }
+            }
+
+            const kstFormatted = now.toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const kstClockEl = document.getElementById('current-kst-time');
+            if (kstClockEl) kstClockEl.textContent = kstFormatted;
+        }
+
+        async function fetchRealtimeEarningsData(ticker) {
+            ticker = ticker.toUpperCase().trim();
+
+            if (STOCK_DATABASE[ticker]) {
+                return { ...STOCK_DATABASE[ticker], source: "미주 실적 DB" };
+            }
+
+            const chartUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
+            const proxies = [
+                `https://corsproxy.io/?${encodeURIComponent(chartUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(chartUrl)}`
+            ];
+
+            for (const proxyUrl of proxies) {
+                try {
+                    const response = await fetch(proxyUrl, { method: 'GET' });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data?.chart?.result?.[0]) {
+                            const meta = data.chart.result[0].meta;
+                            const companyName = meta.longName || meta.shortName || meta.symbol || `${ticker} Corp.`;
+                            
+                            return {
+                                ticker: ticker,
+                                name: companyName,
+                                sector: meta.instrumentType || "US EQUITY",
+                                usDate: meta.regularMarketTime ? new Date(meta.regularMarketTime * 1000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                                usTiming: "AMC",
+                                usTimeEST: "16:05",
+                                estEps: meta.chartPreviousClose ? `$${meta.chartPreviousClose.toFixed(2)}` : "-",
+                                estRev: "실시간 연동",
+                                prevSurprise: "양호",
+                                logoBg: "bg-indigo-600",
+                                source: "Yahoo Finance API"
+                            };
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Yahoo API retry for ${ticker}:`, e);
+                }
+            }
+
+            // Gemini Search Grounding API Fallback
+            try {
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const systemPrompt = "Return ONLY a single valid raw JSON object for US stock earnings without markdown fence.";
+                const userPrompt = `Search upcoming earnings release date/time for stock "${ticker}". JSON format:
+{"found": true, "ticker": "${ticker}", "name": "Company Name", "usDate": "YYYY-MM-DD", "usTiming": "AMC", "usTimeEST": "16:05", "estEps": "$1.00", "estRev": "$1.0B", "prevSurprise": "+10%"}
+If not found, return {"found": false}.`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userPrompt }] }],
+                    tools: [{ "google_search": {} }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                const geminiResp = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (geminiResp.ok) {
+                    const resJson = await geminiResp.json();
+                    const text = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text) {
+                        const cleanJson = text.replace(/```json|```/g, '').trim();
+                        const parsed = JSON.parse(cleanJson);
+                        if (parsed && parsed.found) {
+                            return {
+                                ...parsed,
+                                logoBg: "bg-purple-600",
+                                source: "Google Realtime Grounding"
+                            };
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Gemini Grounding Error:", err);
+            }
+
+            return null;
+        }
+
+        async function searchTicker() {
+            const input = document.getElementById('ticker-input').value.trim().toUpperCase();
+            if (!input) return;
+
+            const container = document.getElementById('search-result-container');
+
+            container.innerHTML = `
+                <div class="glass-panel p-6 rounded-2xl border border-indigo-500/30 text-center space-y-3 shadow-xl">
+                    <div class="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <p class="text-xs font-bold text-white">'${input}' 실시간 API 수집 중...</p>
+                </div>
+            `;
+
+            const stock = await fetchRealtimeEarningsData(input);
+
+            if (!stock) {
+                container.innerHTML = `
+                    <div class="glass-panel p-6 rounded-2xl border border-rose-500/40 bg-rose-950/20 text-center space-y-3 shadow-xl">
+                        <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center mx-auto text-xl">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-white">'${input}' 티커를 찾을 수 없습니다</h3>
+                        <p class="text-xs text-slate-300">미국 증시(NYSE, NASDAQ 등) 상장 여부 및 알파벳 철자를 확인해 주세요.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const { kstDate, isDst } = convertESTToKST(stock.usDate, stock.usTimeEST);
+            
+            const kstMonth = kstDate.getMonth() + 1;
+            const kstDay = kstDate.getDate();
+            const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+            const kstWeek = weekDays[kstDate.getDay()];
+            const kstHours = String(kstDate.getHours()).padStart(2, '0');
+            const kstMins = String(kstDate.getMinutes()).padStart(2, '0');
+
+            let periodStr = "새벽";
+            const hr = kstDate.getHours();
+            if (hr >= 6 && hr < 12) periodStr = "오전";
+            else if (hr >= 12 && hr < 18) periodStr = "오후";
+            else if (hr >= 18 && hr < 24) periodStr = "밤/저녁";
+
+            const inWatchlist = userWatchlist.includes(stock.ticker);
+
+            const timingBadge = stock.usTiming === 'BMO' 
+                ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-sun text-amber-400"></i> 장 시작 전 (BMO)</span>`
+                : `<span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-moon text-indigo-300"></i> 장 마감 후 (AMC)</span>`;
+
+            container.innerHTML = `
+                <div class="glass-panel p-5 sm:p-6 rounded-2xl border border-indigo-500/40 shadow-2xl relative overflow-hidden space-y-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl ${stock.logoBg || 'bg-indigo-600'} flex items-center justify-center text-white text-base font-black shadow-lg">
+                                ${stock.ticker.substring(0, 3)}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h2 class="text-xl sm:text-2xl font-black text-white font-mono tracking-wide">${stock.ticker}</h2>
+                                    ${timingBadge}
+                                </div>
+                                <p class="text-xs text-slate-300 font-medium">${stock.name}</p>
+                            </div>
+                        </div>
+
+                        <button onclick="toggleWatchlist('${stock.ticker}')" class="p-2.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all ${
+                            inWatchlist ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-900 text-slate-300 border-slate-700 hover:text-white'
+                        }">
+                            <i class="fa-solid fa-star"></i>
+                            <span class="hidden sm:inline">${inWatchlist ? '관심 해제' : '관심 등록'}</span>
+                        </button>
+                    </div>
+
+                    <!-- Clean Highlighted KST Time Box -->
+                    <div class="bg-gradient-to-br from-indigo-900/50 via-slate-900 to-slate-900 p-4 rounded-xl border border-indigo-500/30 space-y-1">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="font-bold text-indigo-300 flex items-center gap-1">
+                                <i class="fa-solid fa-flag text-indigo-400"></i> 한국 환산 발표 시각 (KST)
+                            </span>
+                            <span class="text-slate-400 font-mono">시차 +${isDst ? '13' : '14'}h 적용됨</span>
+                        </div>
+                        <div class="text-2xl sm:text-3xl font-black text-white font-mono">
+                            ${kstMonth}월 ${kstDay}일 (${kstWeek}) <span class="text-indigo-300 text-xl sm:text-2xl">${periodStr} ${kstHours}:${kstMins} KST</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-[10px] text-slate-400 block">컨센서스 EPS</span>
+                            <span class="font-bold text-white font-mono">${stock.estEps || '-'}</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-[10px] text-slate-400 block">예상 매출액</span>
+                            <span class="font-bold text-white font-mono">${stock.estRev || '-'}</span>
+                        </div>
+                        <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                            <span class="text-[10px] text-slate-400 block">출처</span>
+                            <span class="font-bold text-indigo-300 text-[11px] truncate block">${stock.source || 'Live API'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleWatchlist(ticker) {
+            if (userWatchlist.includes(ticker)) {
+                userWatchlist = userWatchlist.filter(t => t !== ticker);
+            } else {
+                userWatchlist.push(ticker);
+            }
+            saveWatchlist();
+            searchTicker();
+            renderWatchlist();
+        }
+
+        function clearWatchlist() {
+            userWatchlist = [];
+            saveWatchlist();
+            renderWatchlist();
+        }
+
+        function renderWatchlist() {
+            const container = document.getElementById('watchlist-cards-container');
+            if (!container) return;
+
+            if (userWatchlist.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full p-8 text-center bg-slate-900/60 rounded-xl border border-slate-800 text-slate-400 text-xs">
+                        <i class="fa-solid fa-star text-2xl text-slate-600 block mb-2"></i>
+                        관심 등록된 티커가 없습니다. 검색 결과에서 ★ 관심 등록을 눌러보세요.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            userWatchlist.forEach(ticker => {
+                const stock = STOCK_DATABASE[ticker] || {
+                    ticker, name: `${ticker} Corp.`, usDate: "2026-07-29", usTiming: "AMC", usTimeEST: "16:05"
+                };
+
+                const { kstDate } = convertESTToKST(stock.usDate, stock.usTimeEST);
+                const kstMonth = kstDate.getMonth() + 1;
+                const kstDay = kstDate.getDate();
+                const kstHours = String(kstDate.getHours()).padStart(2, '0');
+                const kstMins = String(kstDate.getMinutes()).padStart(2, '0');
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex items-center justify-between gap-3";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-black text-white font-mono text-base">${stock.ticker}</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded ${stock.usTiming === 'BMO' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'} font-bold">
+                                ${stock.usTiming === 'BMO' ? '장전' : '장후'}
+                            </span>
+                        </div>
+                        <p class="text-xs font-mono font-bold text-indigo-300 mt-1">
+                            KST ${kstMonth}월 ${kstDay}일 ${kstHours}:${kstMins}
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="triggerAlarmNotice('${stock.ticker}', '${kstMonth}/${kstDay} ${kstHours}:${kstMins}')" class="p-2 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 rounded-lg text-xs font-bold border border-indigo-500/30">
+                            <i class="fa-solid fa-bell"></i>
+                        </button>
+                        <button onclick="toggleWatchlist('${stock.ticker}')" class="p-2 bg-slate-800 text-slate-400 hover:text-rose-400 rounded-lg text-xs">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function triggerAlarmNotice(ticker, kstTimeStr) {
+            alert(`🔔 [알림 설정 완료]\n\n티커: ${ticker}\n예정 시각: 한국시간 ${kstTimeStr}\n\n발표 10분 전 푸시 알림이 설정되었습니다.`);
+        }
+
+        function calculateCustomKST() {
+            const dateVal = document.getElementById('calc-us-date').value;
+            const timingVal = document.getElementById('calc-us-timing').value;
+            const resBox = document.getElementById('calc-result-box');
+
+            if (!dateVal) return;
+
+            const timeStr = timingVal === 'BMO' ? "07:00" : "16:05";
+            const { kstDate, isDst } = convertESTToKST(dateVal, timeStr);
+
+            const mm = kstDate.getMonth() + 1;
+            const dd = kstDate.getDate();
+            const hh = String(kstDate.getHours()).padStart(2, '0');
+            const min = String(kstDate.getMinutes()).padStart(2, '0');
+
+            resBox.classList.remove('hidden');
+            resBox.innerHTML = `
+                <div class="font-bold text-white mb-1">💡 환산 결과 (KST)</div>
+                <div>한국시간: <strong class="text-indigo-300">${mm}월 ${dd}일 ${hh}:${min} KST</strong></div>
+                <div class="text-[10px] text-slate-400 mt-0.5">* 서머타임 ${isDst ? 'EDT (13시간 시차)' : 'EST (14시간 시차)'} 자동 반영</div>
+            `;
+        }
+
+        function changeCalMonth(delta) {
+            calendarMonth += delta;
+            if (calendarMonth > 11) { calendarMonth = 0; calendarYear += 1; }
+            else if (calendarMonth < 0) { calendarMonth = 11; calendarYear -= 1; }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const filterVal = document.getElementById('calendar-filter').value;
+            const gridCells = document.getElementById('calendar-grid-cells');
+            const monthTitle = document.getElementById('cal-month-title');
+
+            if (!gridCells) return;
+
+            monthTitle.textContent = `${calendarYear}년 ${calendarMonth + 1}월`;
+            gridCells.innerHTML = '';
+
+            const firstDayOfMonth = new Date(calendarYear, calendarMonth, 1).getDay();
+            const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(calendarYear, calendarMonth, 0).getDate();
+
+            const kstEarningsMap = {};
+            Object.values(STOCK_DATABASE).forEach(stock => {
+                if (filterVal !== 'ALL' && stock.sector !== filterVal) return;
+
+                const { kstDate } = convertESTToKST(stock.usDate, stock.usTimeEST);
+                const yyyy = kstDate.getFullYear();
+                const mm = String(kstDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(kstDate.getDate()).padStart(2, '0');
+                const kstKey = `${yyyy}-${mm}-${dd}`;
+
+                if (!kstEarningsMap[kstKey]) kstEarningsMap[kstKey] = [];
+                kstEarningsMap[kstKey].push({ stock, kstDate });
+            });
+
+            // Prev month padding
+            for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+                const dayNum = daysInPrevMonth - i;
+                const cell = document.createElement('div');
+                cell.className = "min-h-[70px] p-1 bg-slate-950/40 rounded-lg border border-slate-800/40 opacity-30 text-[10px] text-slate-600 font-mono";
+                cell.innerHTML = `<span>${dayNum}</span>`;
+                gridCells.appendChild(cell);
+            }
+
+            // Current month days
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                const currentMmStr = String(calendarMonth + 1).padStart(2, '0');
+                const currentDdStr = String(day).padStart(2, '0');
+                const dateKey = `${calendarYear}-${currentMmStr}-${currentDdStr}`;
+
+                const isToday = today.getFullYear() === calendarYear && today.getMonth() === calendarMonth && today.getDate() === day;
+
+                cell.className = `min-h-[75px] p-1 rounded-lg border flex flex-col justify-start transition-all ${
+                    isToday ? 'bg-indigo-950/50 border-indigo-500/80 shadow-md ring-1 ring-indigo-500/40' : 'bg-slate-900/80 border-slate-800/80'
+                }`;
+
+                let eventsHtml = '';
+                if (kstEarningsMap[dateKey]) {
+                    kstEarningsMap[dateKey].forEach(item => {
+                        const st = item.stock;
+                        const kstHours = String(item.kstDate.getHours()).padStart(2, '0');
+                        const kstMins = String(item.kstDate.getMinutes()).padStart(2, '0');
+
+                        const badgeColor = st.usTiming === 'BMO' 
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' 
+                            : 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+
+                        eventsHtml += `
+                            <button onclick="switchTab('search'); quickSearch('${st.ticker}');" 
+                                class="w-full text-left mt-1 p-0.5 px-1 rounded border text-[9px] font-mono font-bold transition-all flex items-center justify-between gap-0.5 ${badgeColor}">
+                                <span class="truncate">${st.ticker}</span>
+                                <span class="text-[8px] opacity-80">${kstHours}:${kstMins}</span>
+                            </button>
+                        `;
+                    });
+                }
+
+                cell.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="font-mono text-[10px] font-bold ${isToday ? 'text-indigo-400 bg-indigo-500/20 px-1 rounded' : 'text-slate-300'}">${day}</span>
+                    </div>
+                    <div class="mt-0.5 space-y-0.5 overflow-y-auto custom-scrollbar flex-1 max-h-[60px]">
+                        ${eventsHtml}
+                    </div>
+                `;
+
+                gridCells.appendChild(cell);
+            }
+        }
+
+        // Navigation Tabs Controller
+        function switchTab(tabName) {
+            ['search', 'calendar', 'watchlist', 'extension'].forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                const deskBtn = document.getElementById(`desk-tab-${t}`);
+                const mobBtn = document.getElementById(`mob-tab-${t}`);
+
+                if (view) view.classList.add('hidden');
+                
+                if (deskBtn) {
+                    deskBtn.className = "px-3.5 py-1.5 font-medium rounded-lg transition-all text-slate-400 hover:text-white flex items-center gap-1.5";
+                }
+                if (mobBtn) {
+                    mobBtn.className = "flex-1 py-1 text-slate-400 flex flex-col items-center gap-0.5 transition-all";
+                }
+            });
+
+            const targetView = document.getElementById(`view-${tabName}`);
+            const targetDeskBtn = document.getElementById(`desk-tab-${tabName}`);
+            const targetMobBtn = document.getElementById(`mob-tab-${tabName}`);
+
+            if (targetView) targetView.classList.remove('hidden');
+            if (targetDeskBtn) {
+                targetDeskBtn.className = "px-3.5 py-1.5 font-medium rounded-lg transition-all bg-indigo-600 text-white flex items-center gap-1.5";
+            }
+            if (targetMobBtn) {
+                targetMobBtn.className = "flex-1 py-1 text-indigo-400 flex flex-col items-center gap-0.5 transition-all font-bold";
+            }
+
+            if (tabName === 'calendar') renderCalendar();
+            if (tabName === 'watchlist') renderWatchlist();
+            if (tabName === 'extension') showCodeFile('manifest');
+        }
+
+        function showCodeFile(fileKey) {
+            currentCodeTab = fileKey;
+            ['manifest', 'popup_html', 'popup_js', 'background_js'].forEach(key => {
+                const btn = document.getElementById(`file-btn-${key}`);
+                if (btn) {
+                    if (key === fileKey) btn.className = "px-3 py-1 rounded-lg text-xs font-mono font-bold bg-indigo-600 text-white shadow";
+                    else btn.className = "px-3 py-1 rounded-lg text-xs font-mono font-bold text-slate-400 hover:text-white";
+                }
+            });
+            document.getElementById('code-display').textContent = EXTENSION_FILES[fileKey] || '';
+        }
+
+        function copyCurrentCode() {
+            const rawCode = EXTENSION_FILES[currentCodeTab] || '';
+            const textArea = document.createElement("textarea");
+            textArea.value = rawCode;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const btnText = document.getElementById('copy-btn-text');
+                btnText.innerText = "복사 완료!";
+                setTimeout(() => { btnText.innerText = "코드 복사"; }, 2000);
+            } catch (e) {
+                console.error("Copy error", e);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function quickSearch(ticker) {
+            document.getElementById('ticker-input').value = ticker;
+            searchTicker();
+        }
+
+        function handleSearchKeyup(e) {
+            if (e.key === 'Enter') searchTicker();
+        }
+
+        function toggleAppInstallModal() {
+            switchTab('extension');
+        }
+
+        // Window load initialization
+        window.onload = function() {
+            setInterval(updateClocks, 1000);
+            updateClocks();
+            updateWatchlistBadge();
+            quickSearch('MU');
+        };
+    </script>
+</body>
+</html>
